@@ -1,6 +1,7 @@
 papers/
 *.csv
 bca_python.ipynb
+binomial_conf.ipynb 
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
