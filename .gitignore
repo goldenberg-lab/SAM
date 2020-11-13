@@ -1,7 +1,10 @@
+power_for_regression_metrics.ipynb 
+SAM_sujay.ipynb
 papers/
 *.csv
 bca_python.ipynb
 binomial_conf.ipynb 
+*.pkl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

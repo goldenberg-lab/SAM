@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm, t
 from sklearn.utils import resample
-
+from time import time
 
 def perf_fun(*args, **kwargs):
     """
@@ -54,7 +54,9 @@ def thresh_find(*args, **kwargs):
     assert np.all((y==0) | (y==1))
     # --- calculate --- #
     s0, s1 = score[y == 0], score[y == 1]
-    u_scores = np.sort(score)  # Useful for step function
+    u_scores = np.sort(np.unique(s1))  # Useful for step function
+    if len(u_scores)>1000:
+        u_scores = np.quantile(u_scores,np.arange(0,1.001,0.001))
     store = np.zeros([len(u_scores),2],int)
     for ii, tt in enumerate(u_scores):
         store[ii] = [np.sum(s0 >= tt), np.sum(s1 >= tt)]
@@ -129,7 +131,7 @@ class bootstrap():
         self.nboot = nboot
         self.stat = func
     
-    def fit(self, *args, **kwargs):
+    def fit(self, *args, mm=100, **kwargs):
         strata=None
         if 'strata' in kwargs:
             strata = kwargs['strata']
@@ -138,9 +140,14 @@ class bootstrap():
         self.store_theta = np.zeros(self.nboot)
         self.jn = self.stat(*args, **kwargs, jackknife=True)
         self.n = len(self.jn)
+        stime = time()
         for ii in range(self.nboot):  # Fit bootstrap
-            #if (ii+1) % 1000 == 0:
-                #print('Bootstrap %i of %i' % (ii+1, self.nboot))
+            if (ii+1) % mm == 0:
+                nleft = self.nboot - (ii+1)
+                rtime = time() - stime
+                rate = (ii+1)/rtime
+                eta = nleft / rate
+                print('Bootstrap %i of %i (ETA=%0.1f minutes)' % (ii+1, self.nboot, eta/60))
             args_til = draw_samp(*args, strata=strata)
             self.store_theta[ii] = self.stat(*args_til, **kwargs)
         self.se = self.store_theta.std()
