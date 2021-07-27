@@ -72,16 +72,5 @@ gg_thresh = ggplot(df_point,aes(x=thresh)) + theme_bw() +
   labs(y='Frequency',x='Empirical threshold')
 
 gg_both = plot_grid(gg_auroc,gg_thresh,nrow=1,labels=c('A','B'))
-ggsave2(file.path('figures','roc_thresh.png'),gg_both, width=8,height=5)
-
-
-
-
-
-
-
-
-
-
-
+ggsave2(file.path('figures','roc_thresh.png'),gg_both, width=10,height=4)
 
