@@ -5,6 +5,8 @@ papers/
 bca_python.ipynb
 binomial_conf.ipynb 
 *.pkl
+*.Rproj
+figures/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -135,3 +137,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.Rproj.user
