@@ -32,7 +32,6 @@ for (i in seq(nsim)) {
 res_sim = do.call('rbind',holder) %>% mutate(tt='sim')
 
 res_all = rbind(mutate(df,tt='gt',sim=0),mutate(res_sim,tt='sim'))
-lblz = c('Ground truth','Simulation')
 # Find the specificity target
 target_fpr = 0.1
 df_point = res_sim %>% 
@@ -46,22 +45,30 @@ res_sim2 = res_sim %>%
   group_by(tt,sim,sens,fpr) %>% 
   summarise(thresh=min(thresh))
 
-# df_point = data.frame(fpr=target_fpr,sens=thresh_dist)
-df_txt = data.frame(fpr=0.2,sens=0.5,txt='10% FPR')
+# Compare dist to ground truth
+thresh_gt = qnorm(p=1-target_fpr,mean=mu0)
+tpr_gt = pnorm(thresh_gt,mean=mu1,lower.tail = F)
+
+colz = c('blue','grey')
+lblz = c('Ground truth','Simulation')
+df_point_gt = data.frame(fpr=target_fpr,sens=tpr_gt)
+
+df_txt = data.frame(fpr=0.3,sens=0.7,txt='10% FPR')
 gg_auroc = ggplot() + 
   theme_bw() + labs(x='FPR',y='TPR') + 
   geom_text(aes(x=fpr,y=sens,label=txt),data=df_txt,color='blue',size=5) + 
   geom_point(aes(x=fpr,y=sens),color='grey',data=df_point) + 
   geom_line(data=res_sim2,aes(x=fpr,y=sens,color=tt,group=sim),alpha=0.5) + 
   geom_line(data=df,aes(x=fpr,y=sens,color=tt),size=2) + 
-  scale_color_manual(name='Type',values=c('black','grey'),labels=lblz) + 
-  ggtitle('Ground truth ROC curve with empirical distribution') + 
+  scale_color_manual(name='Type',values=colz,labels=lblz) + 
+  ggtitle('Ground truth ROC curve and simulated distribution') + 
   theme(legend.position = c(0.8,0.3)) + 
+  geom_point(aes(x=fpr,y=sens),data=df_point_gt,size=4,color='blue') + 
   geom_segment(aes(y=0,yend=1,x=0,xend=1),color='black',linetype=2,size=1) +
-  geom_vline(xintercept = target_fpr, color='blue')
+  geom_vline(xintercept = target_fpr,color='blue')
+ggsave2(file.path('figures','roc_threshA.png'),gg_auroc, width=5,height=4)
 
-# Compare dist to ground truth
-thresh_gt = qnorm(p=1-target_fpr,mean=mu0)
+
 
 df_txt_thresh = data.frame(x=thresh_gt*1.3,y=9,txt='10% FPR')
 gg_thresh = ggplot(df_point,aes(x=thresh)) + theme_bw() + 
